@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -18,25 +18,14 @@ export default function ActivityDetail({ params }: ActivityDetailProps) {
   const unwrappedParams = use(params);
   const activityId = unwrappedParams.id;
   
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const [activity, setActivity] = useState<StravaActivity | null>(null);
   const [streams, setStreams] = useState<Record<string, StravaStream> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/');
-      return;
-    }
-
-    if (status === 'authenticated') {
-      fetchActivityData();
-    }
-  }, [status, activityId]);
-
-  const fetchActivityData = async () => {
+  const fetchActivityData = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -65,7 +54,18 @@ export default function ActivityDetail({ params }: ActivityDetailProps) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [activityId]);
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/');
+      return;
+    }
+
+    if (status === 'authenticated') {
+      fetchActivityData();
+    }
+  }, [status, activityId, fetchActivityData, router]);
 
   if (status === 'loading' || loading) {
     return (

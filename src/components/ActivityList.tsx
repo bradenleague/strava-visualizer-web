@@ -1,27 +1,20 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { StravaActivity } from '@/lib/strava/api';
 
 export default function ActivityList() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [activities, setActivities] = useState<StravaActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      fetchActivities();
-    } else if (status === 'unauthenticated') {
-      setLoading(false);
-    }
-  }, [status, page]);
-
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/strava/activities?page=${page}&per_page=10`);
@@ -43,7 +36,15 @@ export default function ActivityList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page]);
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      fetchActivities();
+    } else if (status === 'unauthenticated') {
+      setLoading(false);
+    }
+  }, [status, page, fetchActivities]);
 
   const loadMore = () => {
     setPage(prev => prev + 1);
@@ -123,10 +124,12 @@ export default function ActivityList() {
                 </div>
                 {activity.map.summary_polyline && (
                   <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden">
-                    <img 
+                    <Image 
                       src={`https://maps.googleapis.com/maps/api/staticmap?size=64x64&path=enc:${activity.map.summary_polyline}&key=YOUR_GOOGLE_MAPS_API_KEY`} 
                       alt="Activity map" 
                       className="w-full h-full object-cover"
+                      width={64}
+                      height={64}
                     />
                   </div>
                 )}

@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import Image from 'next/image';
 import ActivityList from '@/components/ActivityList';
 
 export default function Home() {
@@ -17,10 +18,12 @@ export default function Home() {
             <div className="flex items-center gap-4">
               <div className="flex items-center">
                 {session?.user?.image && (
-                  <img 
+                  <Image 
                     src={session.user.image} 
                     alt={session.user.name || 'User'} 
                     className="w-8 h-8 rounded-full mr-2"
+                    width={32}
+                    height={32}
                   />
                 )}
                 <span className="text-sm font-medium">{session.user?.name}</span>
