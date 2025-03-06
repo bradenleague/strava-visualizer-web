@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['dgalywyr863hv.cloudfront.net'], // Strava profile images domain
+    domains: ['dgalywyr863hv.cloudfront.net', 'maps.googleapis.com'], // Strava profile images domain and Google Maps
   },
   env: {
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,

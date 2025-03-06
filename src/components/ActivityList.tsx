@@ -122,7 +122,8 @@ export default function ActivityList() {
                     </span>
                   </div>
                 </div>
-                {activity.map.summary_polyline && (
+                {/* Temporarily commenting out the map display until we have a valid Google Maps API key */}
+                {/* {activity.map.summary_polyline && (
                   <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded overflow-hidden">
                     <Image 
                       src={`https://maps.googleapis.com/maps/api/staticmap?size=64x64&path=enc:${activity.map.summary_polyline}&key=YOUR_GOOGLE_MAPS_API_KEY`} 
@@ -132,7 +133,7 @@ export default function ActivityList() {
                       height={64}
                     />
                   </div>
-                )}
+                )} */}
               </div>
             </Link>
           ))}
