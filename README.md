@@ -68,6 +68,32 @@ A Next.js 14 application that integrates with the Strava API to visualize workou
 2. Set the "Authorization Callback Domain" to `localhost` for development
 3. Copy the Client ID and Client Secret to your `.env.local` file
 
+## TODO: Development and Production Environment Setup
+
+Currently, there's a challenge with managing both local development and production environments using the same Strava API application:
+
+- Strava only allows a single "Authorization Callback Domain" per API application
+- For local development with ngrok, this would be your ngrok domain (e.g., `amoeba-resolved-exactly.ngrok-free.app`)
+- For production, this would be your Vercel domain (e.g., `strava-visualizer-sepia.vercel.app`)
+
+### Potential solutions:
+
+1. **Create separate Strava API applications** (Recommended):
+   - One application for development with ngrok callback domain
+   - Another application for production with Vercel callback domain
+   - Use different environment variables for each environment
+
+2. **Manually switch callback domains**:
+   - Update the Strava API settings to use ngrok domain when doing local development
+   - Switch back to Vercel domain before deploying to production
+   - This approach requires taking down production temporarily when doing local development
+
+3. **Use a custom domain**:
+   - Set up a custom domain as the callback domain in Strava
+   - Configure it to work with both environments (requires additional DNS setup)
+
+The first option (separate API applications) is the most practical for ongoing development.
+
 ## Deployment
 
 This application is ready to be deployed on Vercel:
