@@ -1,0 +1,61 @@
+# 3D Visualization Configuration
+# This file contains all the customizable parameters for the 3D visualization
+# Artists can modify these values to change the appearance and behavior of the visualization
+
+# Canvas settings
+canvas:
+  height: "500px"
+  backgroundColor: "#696969"  # Dark blue background
+  borderRadius: "0.5rem"
+
+# Lighting settings
+lighting:
+  ambient:
+    intensity: 1
+    color: "#ffffff"
+  point:
+    position: [10, 10, 10]
+    intensity: 1.0
+    color: "#ffffff"
+
+# Camera settings
+camera:
+  initialPosition: [0, 1, 0]  # Positioned directly above the path
+  fov: 60  # Narrower FOV for better top-down view
+  near: 0.1
+  far: 1000
+  autoFitPadding: 1.5  # More padding around the path
+
+# Path settings
+path:
+  lineWidth: 4
+  defaultColor: "red"
+  animate: true
+  animation:
+    speed: 0.1  # Speed of color animation (lower is slower)
+    saturation: 0.8  # 0-1
+    lightness: 0.5  # 0-1
+
+# Coordinate normalization
+coordinates:
+  scale: 10  # Base scale factor for the entire visualization
+  elevationScale: 0.005  # Multiplier for elevation to make it more visible
+  centerAtOrigin: true  # Whether to center the path at the origin
+
+# Controls
+controls:
+  enablePan: true
+  enableZoom: true
+  enableRotate: true
+  dampingFactor: 0.05
+  autoRotate: false
+  autoRotateSpeed: 1.0
+
+# UI elements
+ui:
+  loadingText: "Loading activity data..."
+  errorText: "Error: "
+  noDataText: "No route data available"
+  fontSize: 0.5
+  textColor: "white"
+  errorColor: "red" 

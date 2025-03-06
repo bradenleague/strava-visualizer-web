@@ -2,25 +2,65 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #242428;
+  --primary: #fc4c02;
+  --primary-hover: #e34402;
+  --secondary: #f7f7fa;
+  --border: #dfdfe8;
+  --accent: #fc4c02;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary: var(--secondary);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #242428;
+    --foreground: #ffffff;
+    --primary: #fc4c02;
+    --primary-hover: #ff6d33;
+    --secondary: #2d2d32;
+    --border: #3a3a3f;
+    --accent: #fc4c02;
   }
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Strava-themed button styles */
+.strava-button {
+  background-color: var(--primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.strava-button:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Strava-themed link styles */
+.strava-link {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.strava-link:hover {
+  text-decoration: underline;
 }
