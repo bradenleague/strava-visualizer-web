@@ -36,7 +36,7 @@ export default function ActivityDetail() {
     try {
       setLoading(true);
       
-      let headers: HeadersInit = {};
+      const headers: HeadersInit = {};
       
       // If we have a local token, use it in the request
       if (hasLocalToken) {
