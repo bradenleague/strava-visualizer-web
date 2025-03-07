@@ -65,34 +65,34 @@ A Next.js 14 application that integrates with the Strava API to visualize workou
 ### Strava API Setup
 
 1. Create a Strava API application at [https://www.strava.com/settings/api](https://www.strava.com/settings/api)
-2. Set the "Authorization Callback Domain" to `localhost` for development
+2. Set the "Authorization Callback Domain" to your production domain
 3. Copy the Client ID and Client Secret to your `.env.local` file
 
-## TODO: Development and Production Environment Setup
+## Development and Production Environment Setup
 
-Currently, there's a challenge with managing both local development and production environments using the same Strava API application:
+We've implemented a solution to manage both local development and production environments using the same Strava API application:
 
-- Strava only allows a single "Authorization Callback Domain" per API application
-- For local development with ngrok, this would be your ngrok domain (e.g., `amoeba-resolved-exactly.ngrok-free.app`)
-- For production, this would be your Vercel domain (e.g., `strava-visualizer-sepia.vercel.app`)
+### Implementation
 
-### Potential solutions:
+The application supports a hybrid authentication approach:
 
-1. **Create separate Strava API applications** (Recommended):
-   - One application for development with ngrok callback domain
-   - Another application for production with Vercel callback domain
-   - Use different environment variables for each environment
+1. **Production Environment**: Uses NextAuth.js for authentication with Strava
+2. **Local Development**: Uses a custom OAuth flow that:
+   - Authenticates with the production Strava app
+   - Redirects back to localhost with tokens in URL parameters
+   - Stores tokens in localStorage for API requests
 
-2. **Manually switch callback domains**:
-   - Update the Strava API settings to use ngrok domain when doing local development
-   - Switch back to Vercel domain before deploying to production
-   - This approach requires taking down production temporarily when doing local development
+This approach allows us to:
+- Use a single Strava API application for both environments
+- Avoid having to switch callback domains in the Strava API settings
+- Maintain a seamless development workflow
 
-3. **Use a custom domain**:
-   - Set up a custom domain as the callback domain in Strava
-   - Configure it to work with both environments (requires additional DNS setup)
+### Environment Files
 
-The first option (separate API applications) is the most practical for ongoing development.
+The project includes two main environment configuration files:
+
+- `.env.local` - Local development configuration
+- `.env.production` - Production configuration
 
 ## Deployment
 

@@ -1,22 +1,16 @@
 'use client';
 
-import React, { useState, useEffect, use, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import ConfigurableActivityMap3D from '@/components/visualization/ConfigurableActivityMap3D';
 import { StravaActivity, StravaStream } from '@/lib/strava/api';
 
-interface ActivityDetailProps {
-  params: Promise<{
-    id: string;
-  }>;
-}
-
-export default function ActivityDetail({ params }: ActivityDetailProps) {
-  // Unwrap the params object using React.use()
-  const unwrappedParams = use(params);
-  const activityId = unwrappedParams.id;
+export default function ActivityDetail() {
+  // Use the useParams hook to get the activity ID
+  const params = useParams();
+  const activityId = params?.id as string;
   
   const { status } = useSession();
   const router = useRouter();
@@ -24,13 +18,38 @@ export default function ActivityDetail({ params }: ActivityDetailProps) {
   const [streams, setStreams] = useState<Record<string, StravaStream> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasLocalToken, setHasLocalToken] = useState(false);
+  const [hasCheckedLocalStorage, setHasCheckedLocalStorage] = useState(false);
+
+  // Check if we have a stored access token
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasToken = localStorage.getItem('strava_access_token') !== null;
+      setHasLocalToken(hasToken);
+      setHasCheckedLocalStorage(true);
+    }
+  }, []);
 
   const fetchActivityData = useCallback(async () => {
+    if (!activityId) return;
+    
     try {
       setLoading(true);
       
+      let headers: HeadersInit = {};
+      
+      // If we have a local token, use it in the request
+      if (hasLocalToken) {
+        const accessToken = localStorage.getItem('strava_access_token');
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+      }
+      
       // Fetch activity details
-      const activityResponse = await fetch(`/api/strava/activities/${activityId}`);
+      const activityResponse = await fetch(`/api/strava/activities/${activityId}`, {
+        headers
+      });
       
       if (!activityResponse.ok) {
         throw new Error(`Failed to fetch activity: ${activityResponse.statusText}`);
@@ -40,7 +59,9 @@ export default function ActivityDetail({ params }: ActivityDetailProps) {
       setActivity(activityData);
       
       // Fetch activity streams
-      const streamsResponse = await fetch(`/api/strava/activities/${activityId}/streams?types=latlng,altitude,distance,time`);
+      const streamsResponse = await fetch(`/api/strava/activities/${activityId}/streams?types=latlng,altitude,distance,time`, {
+        headers
+      });
       
       if (!streamsResponse.ok) {
         throw new Error(`Failed to fetch streams: ${streamsResponse.statusText}`);
@@ -54,20 +75,28 @@ export default function ActivityDetail({ params }: ActivityDetailProps) {
     } finally {
       setLoading(false);
     }
-  }, [activityId]);
+  }, [activityId, hasLocalToken]);
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
+    // Only proceed with authentication checks after we've checked localStorage
+    if (!hasCheckedLocalStorage) {
+      return;
+    }
+
+    // Only redirect if we're sure the user is not authenticated via NextAuth AND has no local token
+    if (status === 'unauthenticated' && !hasLocalToken) {
       router.push('/');
       return;
     }
 
-    if (status === 'authenticated') {
+    // Fetch data if authenticated via NextAuth or has local token
+    if ((status === 'authenticated' || hasLocalToken) && activityId) {
       fetchActivityData();
     }
-  }, [status, activityId, fetchActivityData, router]);
+  }, [status, activityId, fetchActivityData, router, hasLocalToken, hasCheckedLocalStorage]);
 
-  if (status === 'loading' || loading) {
+  // Show loading state while checking authentication or fetching data
+  if ((status === 'loading' && !hasCheckedLocalStorage) || loading) {
     return (
       <div className="flex justify-center items-center h-96">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -77,23 +106,43 @@ export default function ActivityDetail({ params }: ActivityDetailProps) {
 
   if (error) {
     return (
-      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <strong className="font-bold">Error!</strong>
-        <span className="block sm:inline"> {error}</span>
-        <Link href="/" className="block mt-4 text-blue-500 hover:underline">
-          Back to activities
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <Link href="/" className="text-blue-500 hover:underline mb-6 inline-block">
+          &larr; Back to activities
         </Link>
+        
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <strong className="font-bold">Error!</strong>
+          <span className="block sm:inline"> {error}</span>
+          <div className="mt-4 flex space-x-4">
+            <Link href="/" className="text-blue-500 hover:underline">
+              Back to activities
+            </Link>
+            <button 
+              onClick={fetchActivityData}
+              className="text-blue-500 hover:underline"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!activity) {
     return (
-      <div className="text-center py-10">
-        <p className="text-lg mb-4">Activity not found</p>
-        <Link href="/" className="text-blue-500 hover:underline">
-          Back to activities
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <Link href="/" className="text-blue-500 hover:underline mb-6 inline-block">
+          &larr; Back to activities
         </Link>
+        
+        <div className="text-center py-10">
+          <p className="text-lg mb-4">Activity not found</p>
+          <Link href="/" className="text-blue-500 hover:underline">
+            Back to activities
+          </Link>
+        </div>
       </div>
     );
   }
